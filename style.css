@@ -13,9 +13,19 @@
 #board td {
     font-size: 5em;
     text-align: center;
-    border: 1px solid black;
+    border: 2px solid black;
 }
 
 #randomize {
+    display: block;
+    margin: 0 auto;
+    width: 400px;
+    height: 130px;
+    font-size: 64px;
+    text-align: center;
+    margin-top: 10px;
+}
 
+#empty {
+    background-color: grey;
 }
