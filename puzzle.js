@@ -24,45 +24,73 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
         for(let y = 0; y < this.numberOfRows; y++) { //update position of empty
             let tempArray = tempMatrix[y]; //store current row
             let result = tempArray.findIndex(this.isNull); //check current stored row
-            if(result) { //if result is not undefined, then element found. Loop can now end
+            if(result > -1) { //if result is not undefined, then element found. Loop can now end
                 this.positionOfEmpty = [y, result];
+                console.log(this.positionOfEmpty);
                 break; //end the loop
             }
         }
         this.matrixOfPuzzle = tempMatrix; //update puzzle matrix to throwaway matrix
     };
     this.getElementAboveEmpty = function() {
+        console.log('AboveEmpty');
         let checkRow = this.positionOfEmpty[0]-1;
         let checkColumn = this.positionOfEmpty[1];
-        return this.matrixOfPuzzle[checkRow, checkColumn];
+        try {
+            return this.matrixOfPuzzle[checkRow][checkColumn];
+        } catch(error) {
+            return undefined;
+        }
     };
 
     this.getElementBelowEmpty = function() {
+        console.log('BelowEmpty');
         let checkRow = this.positionOfEmpty[0]+1;
         let checkColumn = this.positionOfEmpty[1];
-        return this.matrixOfPuzzle[checkRow, checkColumn];
+        try {
+            return this.matrixOfPuzzle[checkRow][checkColumn];
+        } catch(error) {
+            return undefined;
+        }
     };
 
     this.getElementRightEmpty = function() {
+        console.log('RightEmpty');
         let checkRow = this.positionOfEmpty[0];
         let checkColumn = this.positionOfEmpty[1]+1;
-        return this.matrixOfPuzzle[checkRow, checkColumn];
+        try {
+            return this.matrixOfPuzzle[checkRow][checkColumn];
+        } catch(error) {
+            return undefined;
+        }
     };
 
     this.getElementLeftEmpty = function() {
-        let checkRow = this.positionOfEmpty[0]-1;
+        console.log('LeftEmpty');
+        let checkRow = this.positionOfEmpty[0];
         let checkColumn = this.positionOfEmpty[1]-1;
-        return this.matrixOfPuzzle[checkRow, checkColumn];
+        try {
+            return this.matrixOfPuzzle[checkRow][checkColumn];
+        } catch(error) {
+            return undefined;
+        }
     };
-    this.swapCells = function(cell) {
-        let clickedParent = jQuery(cell).parent();
+    this.swapVerticalCells = function(cell) {
+        console.log('SwapCells');
+        let clickedParent = jQuery('#'+cell).parent();
         let emptyParent = jQuery('#empty').parent();
-        clickedParent.append(jQuery('#empty'));
-        emptyParent.append(jQuery(cell));
-        jQuery(cell).remove();
-        jQuery(emptyParent.children('#empty')).remove();
+        jQuery(clickedParent).prepend('<span id="tmpClicked"></span>');
+        jQuery(emptyParent).prepend('<span id="tmpEmpty"></span>');
+        jQuery('#tmpClicked').insertAfter(jQuery('#'+cell));
+        jQuery('#tmpEmpty').insertAfter(jQuery('#empty'));
+        jQuery('#empty').insertAfter(jQuery('#tmpClicked'));
+        jQuery('#'+cell).insertAfter(jQuery('#tmpEmpty'));
+        jQuery('#tmpClicked').remove();
+        jQuery('#tmpEmpty').remove();
         this.refreshMatrix();
     }
+
+
 };
 
 var theGame = new Display('puzzle'); //id of div in this case is puzzle
@@ -70,15 +98,19 @@ theGame.refreshMatrix();
 console.log(theGame.matrixOfPuzzle); //diagnostic
 jQuery('td').click(function() {
     console.log('Clicked');
+    let id = jQuery(this).attr('id');
     if(parseInt(theGame.getElementAboveEmpty()) === parseInt(jQuery(this).html())) { //parse int and === are used to make sure the type compared is an int
-        theGame.swapCells(this);
+        theGame.swapVerticalCells(id);
     } else if(parseInt(theGame.getElementBelowEmpty()) === parseInt(jQuery(this).html())) {
-        theGame.swapCells(this);
+        theGame.swapVerticalCells(id);
     } else if(parseInt(theGame.getElementRightEmpty()) === parseInt(jQuery(this).html())) {
-        theGame.swapCells(this);
+        jQuery(this).insertBefore(jQuery('#empty'));
+        theGame.refreshMatrix();
     } else if(parseInt(theGame.getElementLeftEmpty()) === parseInt(jQuery(this).html())) {
-        theGame.swapCells(this);
+        jQuery(this).insertAfter(jQuery('#empty'));
+        theGame.refreshMatrix();
     } else {
+        console.log('Else');
         //nothing changes, because clicked cell is not adjacent to an empty cell
     }
 });
