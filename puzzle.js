@@ -1,3 +1,6 @@
+//Puzzle Project by Jonathan Stine
+//All code with the exception of getRandomInt was created from scratch
+
 var Display = function(puzzle) { //expects a string for the id of the puzzle div
     this.puzzleID = puzzle;
     this.tableID = jQuery('#puzzle > table');
@@ -9,6 +12,7 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
     this.isNull = function(cell) {
         return cell === '0';
     };
+
     //getRandomInt was taken from the mozilla javascript docs, found here:
     //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
     this.getRandomInt = function(min, max) {
@@ -17,7 +21,7 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
         return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
     };
 
-    this.checkValidity = function() { //checks validity of 15-puzzle
+    this.checkValidity = function() { //checks validity of puzzle. Should be reusable for any size
         let inversions = 0;
         let index = 0;
         while(index < this.oneDMatrixOfPuzzle.length-1) {
@@ -51,7 +55,19 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
         }
 
     };
-
+    this.checkIfWon = function(){
+        let wrongOrder = false;
+        for(let i = 0; i < this.oneDMatrixOfPuzzle.length-1; i++) {
+            if(parseInt(this.oneDMatrixOfPuzzle[i]) === i+1) {
+                console.log('continue');
+            } else {
+                wrongOrder = true;
+            }
+        }
+        if(wrongOrder === false) {
+            alert('You solved the puzzle!!!');
+        }
+    };
     this.refreshMatrix = function() {
         let pieces = jQuery('td');
         //console.log(pieces); //diagnostic
@@ -80,6 +96,7 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
             }
         }
         this.matrixOfPuzzle = tempMatrix; //update puzzle matrix to throwaway matrix
+        //this.checkIfWon();
     };
     this.getElementAboveEmpty = function() {
         //console.log('AboveEmpty');
@@ -136,12 +153,11 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
         jQuery('#'+cellFirst).insertAfter(jQuery('#tmpEmpty'));
         jQuery('#tmpClicked').remove();
         jQuery('#tmpEmpty').remove();
-        this.refreshMatrix();
     };
     this.randomize = function() {
-        for(let i = 0; i < 500; i++) {
-            let first = jQuery('#' + this.getRandomInt(0, 16));
-            let second = jQuery('#' + this.getRandomInt(0, 16));
+        for(let i = 0; i < 200; i++) {
+            let first = jQuery('#' + this.getRandomInt(0, 17));
+            let second = jQuery('#' + this.getRandomInt(0, 17));
             while (first === second) { //prevent the same elements being selected
                 second = jQuery('#' + getRandomInt(0, 16));
             }
@@ -150,29 +166,61 @@ var Display = function(puzzle) { //expects a string for the id of the puzzle div
         this.refreshMatrix();
     };
 
+    this.winTheGame = function() { //diagnostic function
+        jQuery('table').replaceWith('        <table id = \'board\'>\n' +
+            '            <tr id="row1">\n' +
+            '                <td id="1">1</td>\n' +
+            '                <td id="2">2</td>\n' +
+            '                <td id="3">3</td>\n' +
+            '                <td id="4">4</td>\n' +
+            '            </tr>\n' +
+            '            <tr id="row2">\n' +
+            '                <td id="5">5</td>\n' +
+            '                <td id="6">6</td>\n' +
+            '                <td id="7">7</td>\n' +
+            '                <td id="8">8</td>\n' +
+            '            </tr>\n' +
+            '            <tr id="row3">\n' +
+            '                <td id="9">9</td>\n' +
+            '                <td id="10">10</td>\n' +
+            '                <td id="11">11</td>\n' +
+            '                <td id="12">12</td>\n' +
+            '            </tr>\n' +
+            '            <tr id="row4">\n' +
+            '                <td id="13">13</td>\n' +
+            '                <td id="14">14</td>\n' +
+            '                <td id="15">15</td>\n' +
+            '                <td class=\'empty\' id="0">0</td>\n' +
+            '            </tr>\n' +
+            '        </table>');
+    };
+
 };
 
 var theGame = new Display('puzzle'); //id of div in this case is puzzle
 theGame.refreshMatrix();
+theGame.randomize(); //new game
 console.log(theGame.matrixOfPuzzle); //diagnostic
 jQuery('td').click(function() {
     console.log('Clicked');
     let id = jQuery(this).attr('id');
     if(parseInt(theGame.getElementAboveEmpty()) === parseInt(jQuery(this).html())) { //parse int and === are used to make sure the type compared is an int
-        theGame.swapCells(id, 'empty');
+        theGame.swapCells(id, '0');
     } else if(parseInt(theGame.getElementBelowEmpty()) === parseInt(jQuery(this).html())) {
-        theGame.swapCells(id, 'empty');
+        theGame.swapCells(id, '0');
     } else if(parseInt(theGame.getElementRightEmpty()) === parseInt(jQuery(this).html())) {
-        jQuery(this).insertBefore(jQuery('#empty'));
-        theGame.refreshMatrix();
+        jQuery(this).insertBefore(jQuery('#0'));
+        //theGame.refreshMatrix();
     } else if(parseInt(theGame.getElementLeftEmpty()) === parseInt(jQuery(this).html())) {
-        jQuery(this).insertAfter(jQuery('#empty'));
-        theGame.refreshMatrix();
+        jQuery(this).insertAfter(jQuery('#0'));
+        //theGame.refreshMatrix();
     } else {
         console.log('Else');
         //nothing changes, because clicked cell is not adjacent to an empty cell
     }
-    console.log(theGame.checkValidity());
+    theGame.refreshMatrix();
+    theGame.checkIfWon();
+    //console.log(theGame.checkValidity());
 });
 
 jQuery('#randomize').click(function() {
