@@ -4,6 +4,7 @@
 }
 
 #board {
+    table-layout: fixed;
     border-spacing: 0px;
     margin: 0 auto;
     width: 80vw;
@@ -28,4 +29,10 @@
 
 #empty {
     background-color: grey;
+    color: grey;
+}
+
+#note {
+    text-align: center;
+    font-size: 18px;
 }
